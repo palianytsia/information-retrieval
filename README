@@ -1,0 +1,19 @@
+  
+  CONTENTS OF THIS FILE
+  ---------------------
+  
+   * About
+   * How to build
+   * How to launch
+  
+  ABOUT
+  -----
+  
+  HOW TO BUILD
+  ------------
+  
+  HOW TO LAUNCH
+  -------------
+  To launch the program after build run InformatioRetrieval -s [feedURL] , 
+  where feedURL is a link to RSS feed containing documents to be indexed, 
+  after index is build, you will be able to run queries.
