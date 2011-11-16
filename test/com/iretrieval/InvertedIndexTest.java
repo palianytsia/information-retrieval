@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.After;
@@ -62,7 +63,7 @@ public class InvertedIndexTest
 	@Test
 	public void testRetrieveDocuments()
 	{
-		Set<Document> results = index.retrieveDocuments(new Query("Ajax"));
+		List<Document> results = index.retrieveDocuments(new Query("Ajax"));
 		assertNotNull(results);
 		assertTrue(results.size() > 0);
 		System.out.println(results);

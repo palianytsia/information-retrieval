@@ -9,6 +9,8 @@ public class InformationRetrieval
 	public static void main(String[] args)
 	{
 		String source = null;
+		URL feedURL = null;
+		
 		for (int i = 0; i < args.length - 1; i++)
 		{
 			if (args[i].equals("-s"))
@@ -24,9 +26,20 @@ public class InformationRetrieval
 					+ "documents to be indexed. Program will terminate now.");
 			System.exit(-1);
 		}
+		
 		try
 		{
-			URL feedURL = new URL(source);
+			feedURL = new URL(source);
+		}
+		catch (MalformedURLException e)
+		{
+			System.err.println("MalformedURL was given as source for the index: " + source
+					+ ". Program will terminate now.");
+			System.exit(-1);
+		}
+		
+		if (feedURL != null)
+		{
 			InvertedIndex index = InvertedIndex.getInstance(feedURL);
 			System.out.println("Index is build. Now you are able to run "
 					+ "queries and retrieve documents. Type exit to quit.");
@@ -35,22 +48,19 @@ public class InformationRetrieval
 			while (!command.equals("exit"))
 			{
 				System.out.print("Query> ");
-				command = in.nextLine();
-				if (!command.equals("exit"))
+				if (in.hasNextLine())
 				{
-					int i = 0;
-					for (Document document : index.retrieveDocuments(new Query(command)))
+					command = in.nextLine();
+					if (!command.equals("exit"))
 					{
-						System.out.println(++i + ") " + document.toString());
+						int i = 0;
+						for (Document document : index.retrieveDocuments(new Query(command)))
+						{
+							System.out.println(++i + ") " + document.toString());
+						}
 					}
 				}
 			}
-		}
-		catch (MalformedURLException e)
-		{
-			System.err.println("MalformedURL was given as source for the index: " + source
-					+ ". Program will terminate now.");
-			System.exit(-1);
 		}
 	}
 }

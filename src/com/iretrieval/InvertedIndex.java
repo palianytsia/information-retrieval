@@ -3,8 +3,10 @@ package com.iretrieval;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -33,12 +35,9 @@ public class InvertedIndex
 					Integer termFrequency = postings.get(document.getGuid());
 					if (termFrequency == null)
 					{
-						postings.put(document.getGuid(), 1);
+						termFrequency = 0;
 					}
-					else
-					{
-						++termFrequency;
-					}
+					postings.put(document.getGuid(), ++termFrequency);
 				}
 			}
 		}
@@ -62,7 +61,7 @@ public class InvertedIndex
 	public double getInvertedDocumentFrequency(String term)
 	{
 		int documentFrequency = getDocumentFrequency(term);
-		if (documentFrequency > 0 && documentsCache != null)
+		if (documentsCache != null && documentsCache.size() > 0)
 		{
 			return documentFrequency / documentsCache.size();
 		}
@@ -98,9 +97,9 @@ public class InvertedIndex
 		return instance;
 	}
 
-	public Set<Document> retrieveDocuments(Query query)
+	public List<Document> retrieveDocuments(Query query)
 	{
-		Set<Document> results = new HashSet<Document>();
+		List<Document> results = new LinkedList<Document>();
 		if (query != null)
 		{
 			for (String term : query.getTerms())
@@ -117,6 +116,17 @@ public class InvertedIndex
 						}
 					}
 				}
+				final String[] terms = new String[1];
+				terms[0] = term;
+				Collections.sort(results, new Comparator<Document>()
+				{
+					public int compare(Document a, Document b)
+					{
+						return Double.valueOf(getTermFrequency(terms[0], a)).compareTo(
+								Double.valueOf(getTermFrequency(terms[0], b)));
+					}
+				});
+				Collections.reverse(results);
 			}
 		}
 		return results;
