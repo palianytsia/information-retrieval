@@ -1,5 +1,6 @@
 package com.iretrieval;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,11 +14,14 @@ public class Query
 	public Query(String queryString)
 	{
 		this.queryString = queryString;
-		StringTokenizer st = new StringTokenizer(queryString);
-		String term = st.nextToken();
-		if (!terms.contains(term))
+		StringTokenizer st = new StringTokenizer(Utils.normalize(queryString));
+		while (st.hasMoreTokens())
 		{
-			terms.add(term);
+			String term = st.nextToken();
+			if (!terms.contains(term))
+			{
+				terms.add(term);
+			}
 		}
 	}
 
@@ -36,8 +40,12 @@ public class Query
 		this.queryString = queryString;
 	}
 
-	public void setTerms(List<String> terms)
+	public void setTerms(Collection<String> terms)
 	{
-		this.terms = terms;
+		this.terms.clear();
+		if (terms != null)
+		{
+			this.terms.addAll(terms);
+		}
 	}
 }

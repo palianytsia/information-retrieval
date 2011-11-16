@@ -19,6 +19,21 @@ import com.sun.syndication.io.XmlReader;
 
 public class Utils
 {
+	/**
+	 * Prepares string for indexing: removes punctuation, sets case to lower,
+	 * etc.
+	 * 
+	 * @param string String to be processed
+	 * 
+	 * @return Normalized string
+	 */
+	public static String normalize(String string)
+	{
+		string = string.toLowerCase();
+		string = string.replaceAll("[^a-zа-я0-9+#]+", " ");
+		string = string.replaceAll("(\\s|^)((\\S{1}|\\d{2})(\\s|\\n|\\r|\\t|$){1})+", " ");
+		return string;
+	}
 
 	/**
 	 * Creates a set of documents from files located at directory specified

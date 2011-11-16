@@ -1,5 +1,7 @@
 package com.iretrieval;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,7 +69,7 @@ public class Document
 
 	public Set<String> getCategories()
 	{
-		return categories;
+		return Collections.unmodifiableSet(categories);
 	}
 
 	public String getDescription()
@@ -77,7 +79,13 @@ public class Document
 
 	public Map<String, Map<String, String>> getExtraFields()
 	{
-		return extraFields;
+		Map<String, Map<String, String>> extraFields = new HashMap<String, Map<String, String>>();
+		for (String extraGroupName : this.extraFields.keySet())
+		{
+			extraFields.put(extraGroupName,
+					Collections.unmodifiableMap(this.extraFields.get(extraGroupName)));
+		}
+		return Collections.unmodifiableMap(extraFields);
 	}
 
 	public String getGuid()
@@ -92,7 +100,7 @@ public class Document
 
 	public Date getPubDate()
 	{
-		return pubDate;
+		return (Date) pubDate.clone();
 	}
 
 	public String getTitle()
@@ -152,9 +160,13 @@ public class Document
 		return result;
 	}
 
-	public void setCategories(Set<String> categories)
+	public void setCategories(Collection<String> categories)
 	{
-		this.categories = categories;
+		this.categories.clear();
+		if (categories != null)
+		{
+			this.categories.addAll(categories);
+		}
 	}
 
 	public void setDescription(String content)
@@ -164,7 +176,22 @@ public class Document
 
 	public void setExtraFields(Map<String, Map<String, String>> extraFields)
 	{
-		this.extraFields = extraFields;
+		this.extraFields.clear();
+		for (String extraGroupName : extraFields.keySet())
+		{
+			Map<String, String> extraGroup = extraFields.get(extraGroupName);
+			if (extraGroup != null)
+			{
+				for (String extraKey : extraGroup.keySet())
+				{
+					String extraValue = extraGroup.get(extraKey);
+					if (extraKey != null && extraValue != null)
+					{
+						addExtraField(extraGroupName, extraKey, extraValue);
+					}
+				}
+			}
+		}
 	}
 
 	public void setLink(String link)
@@ -174,7 +201,7 @@ public class Document
 
 	public void setPubDate(Date pubDate)
 	{
-		this.pubDate = pubDate;
+		this.pubDate = (Date) pubDate.clone();
 	}
 
 	public void setTitle(String title)

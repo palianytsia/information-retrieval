@@ -20,22 +20,25 @@ public class InvertedIndex
 			if (document != null && document.getGuid() != null)
 			{
 				documentsCache.put(document.getGuid(), document);
-				StringTokenizer st = new StringTokenizer(document.getRawText());
-				String term = st.nextToken();
-				Map<String, Integer> postings = postingsList.get(term);
-				if (postings == null)
+				StringTokenizer st = new StringTokenizer(Utils.normalize(document.getRawText()));
+				while (st.hasMoreTokens())
 				{
-					postings = new HashMap<String, Integer>();
-					postingsList.put(term, postings);
-				}
-				Integer termFrequency = postings.get(document.getGuid());
-				if (termFrequency == null)
-				{
-					postings.put(document.getGuid(), 1);
-				}
-				else
-				{
-					++termFrequency;
+					String term = st.nextToken();
+					Map<String, Integer> postings = postingsList.get(term);
+					if (postings == null)
+					{
+						postings = new HashMap<String, Integer>();
+						postingsList.put(term, postings);
+					}
+					Integer termFrequency = postings.get(document.getGuid());
+					if (termFrequency == null)
+					{
+						postings.put(document.getGuid(), 1);
+					}
+					else
+					{
+						++termFrequency;
+					}
 				}
 			}
 		}
@@ -117,6 +120,11 @@ public class InvertedIndex
 			}
 		}
 		return results;
+	}
+
+	public Document getDocumentFromCache(String guid)
+	{
+		return documentsCache.get(guid);
 	}
 
 	private Map<String, Document> documentsCache = new HashMap<String, Document>();

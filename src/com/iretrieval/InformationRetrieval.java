@@ -19,16 +19,17 @@ public class InformationRetrieval
 		}
 		if (source == null)
 		{
-			System.err
-					.println("You should launch the program with -s [feedURL], where feedURL is a link to RSS feed describing the documents to be indexed. Program will terminate now.");
+			System.err.println("You should launch the program with -s [feedURL], "
+					+ "where feedURL is a link to RSS feed describing the "
+					+ "documents to be indexed. Program will terminate now.");
 			System.exit(-1);
 		}
 		try
 		{
 			URL feedURL = new URL(source);
 			InvertedIndex index = InvertedIndex.getInstance(feedURL);
-			System.out
-					.println("Index is build. Now you are able to run queries and retrieve documents. Type exit to quit.");
+			System.out.println("Index is build. Now you are able to run "
+					+ "queries and retrieve documents. Type exit to quit.");
 			Scanner in = new Scanner(System.in);
 			String command = "";
 			while (!command.equals("exit"))
