@@ -12,45 +12,68 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-public class InvertedIndex
+public class InvertedIndex implements InformationRetrieval
 {
 
-	private InvertedIndex(Collection<Document> documents)
+	/**
+	 * Constructs an inverted index for a given collection of documents
+	 * 
+	 * @see "Introduction to information retrieval. 1.2 A first take at building"
+	 * an inverted index
+	 * 
+	 * @param documents
+	 * Documents collection to index, among documents that are equal will be
+	 * indexed only the first one
+	 */
+	protected InvertedIndex(Collection<? extends Document> documents)
 	{
 		for (Document document : documents)
 		{
 			if (document != null && document.getGuid() != null)
 			{
-				documentsCache.put(document.getGuid(), document);
-				StringTokenizer st = new StringTokenizer(Utils.normalize(document.getRawText()));
-				while (st.hasMoreTokens())
+				if (documentsCache.put(document.getGuid(), document) == null)
 				{
-					String term = st.nextToken();
-					Map<String, Integer> postings = postingsList.get(term);
-					if (postings == null)
+					StringTokenizer st = new StringTokenizer(Utils.normalize(document.getRawText()));
+					while (st.hasMoreTokens())
 					{
-						postings = new HashMap<String, Integer>();
-						postingsList.put(term, postings);
+						String term = st.nextToken();
+						List<String> postings = postingsList.get(term);
+						if (postings == null)
+						{
+							postings = new LinkedList<String>();
+							postingsList.put(term, postings);
+						}
+						postings.add(document.getGuid());
 					}
-					Integer termFrequency = postings.get(document.getGuid());
-					if (termFrequency == null)
-					{
-						termFrequency = 0;
-					}
-					postings.put(document.getGuid(), ++termFrequency);
 				}
 			}
 		}
 	}
 
+	/**
+	 * Gets the dictionary
+	 * 
+	 * @return Unmodifiable set of words
+	 */
 	public Set<String> getDictionary()
 	{
 		return Collections.unmodifiableSet(postingsList.keySet());
 	};
 
+	/**
+	 * Retrieves document frequency for the term
+	 * 
+	 * @see "Introduction to information retrieval. 1.2 A first take at building"
+	 * an inverted index
+	 * 
+	 * @param term
+	 * Term to retrieve document frequency for
+	 * 
+	 * @return Document frequency or 0 if it is impossible to get one
+	 */
 	public int getDocumentFrequency(String term)
 	{
-		Map<String, Integer> postings = postingsList.get(term);
+		List<String> postings = postingsList.get(term);
 		if (postings != null)
 		{
 			return postings.size();
@@ -58,7 +81,24 @@ public class InvertedIndex
 		return 0;
 	}
 
-	public double getInvertedDocumentFrequency(String term)
+	public Document getDocumentFromCache(String guid)
+	{
+		return documentsCache.get(guid);
+	}
+
+	/**
+	 * Calculates inverse document frequency for the term
+	 * 
+	 * @see "Introduction to information retrieval. 6.2.1 Inverse document"
+	 * frequency
+	 * 
+	 * @param term
+	 * Term to calculate inverse document frequency for
+	 * 
+	 * @return Inverse document frequency or 0 if it is impossible to calculate
+	 * one
+	 */
+	public double getInverseDocumentFrequency(String term)
 	{
 		int documentFrequency = getDocumentFrequency(term);
 		if (documentsCache != null && documentsCache.size() > 0)
@@ -68,20 +108,64 @@ public class InvertedIndex
 		return 0.0;
 	}
 
-	public int getTermFrequency(String term, Document document)
-	{
-		Map<String, Integer> postings = postingsList.get(term);
-		if (postings != null && document != null)
-		{
-			Integer termFrequency = postings.get(document.getGuid());
-			return termFrequency.intValue();
-		}
-		return 0;
-	}
-
+	/**
+	 * Calculates tf-idf weight for the term-document pair
+	 * 
+	 * @see "Introduction to information retrieval. 6.2.2 Tf-idf weighting"
+	 * 
+	 * @param term
+	 * Term from term-document pair to calculate inverse document frequency for
+	 * 
+	 * @param document
+	 * Document from term-document pair to calculate inverse document frequency
+	 * for
+	 * 
+	 * @return tf-idf weight
+	 */
 	public double getTfIdfWeight(String term, Document document)
 	{
-		return getTermFrequency(term, document) * getInvertedDocumentFrequency(term);
+		return document.getTermFrequency(term) * getInverseDocumentFrequency(term);
+	}
+
+	/**
+	 * Retrieves documents that satisfy the query given
+	 * 
+	 * @param query
+	 * Query to retrieve documents for
+	 * 
+	 * @return List of documents
+	 */
+	public List<Document> retrieveDocuments(final Query query)
+	{
+		List<Document> results = new LinkedList<Document>();
+		if (query != null)
+		{
+			for (String term : query.getTerms())
+			{
+				List<String> postings = postingsList.get(term);
+				if (postings != null)
+				{
+					for (String guid : postings)
+					{
+						Document document = documentsCache.get(guid);
+						if (document != null && !results.contains(document))
+						{
+							results.add(document);
+						}
+					}
+				}
+			}
+			Collections.sort(results, new Comparator<Document>()
+			{
+				public int compare(Document a, Document b)
+				{
+					return Double.valueOf(a.getTermFrequency(query)).compareTo(
+							Double.valueOf(b.getTermFrequency(query)));
+				}
+			});
+			Collections.reverse(results);
+		}
+		return results;
 	}
 
 	public static InvertedIndex getInstance(URL feedURL)
@@ -97,48 +181,8 @@ public class InvertedIndex
 		return instance;
 	}
 
-	public List<Document> retrieveDocuments(Query query)
-	{
-		List<Document> results = new LinkedList<Document>();
-		if (query != null)
-		{
-			for (String term : query.getTerms())
-			{
-				Map<String, Integer> postings = postingsList.get(term);
-				if (postings != null)
-				{
-					for (String guid : postings.keySet())
-					{
-						Document document = documentsCache.get(guid);
-						if (document != null)
-						{
-							results.add(document);
-						}
-					}
-				}
-				final String[] terms = new String[1];
-				terms[0] = term;
-				Collections.sort(results, new Comparator<Document>()
-				{
-					public int compare(Document a, Document b)
-					{
-						return Double.valueOf(getTermFrequency(terms[0], a)).compareTo(
-								Double.valueOf(getTermFrequency(terms[0], b)));
-					}
-				});
-				Collections.reverse(results);
-			}
-		}
-		return results;
-	}
-
-	public Document getDocumentFromCache(String guid)
-	{
-		return documentsCache.get(guid);
-	}
-
 	private Map<String, Document> documentsCache = new HashMap<String, Document>();
-	private Map<String, Map<String, Integer>> postingsList = new TreeMap<String, Map<String, Integer>>();
+	private Map<String, List<String>> postingsList = new TreeMap<String, List<String>>();
 
 	private static volatile Map<String, InvertedIndex> instances = Collections
 			.synchronizedMap(new HashMap<String, InvertedIndex>());

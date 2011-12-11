@@ -8,9 +8,6 @@ import java.util.StringTokenizer;
 
 public class Query
 {
-	private String queryString;
-	private List<String> terms = new LinkedList<String>();
-
 	public Query(String queryString)
 	{
 		this.queryString = queryString;
@@ -48,4 +45,8 @@ public class Query
 			this.terms.addAll(terms);
 		}
 	}
+
+	private String queryString;
+
+	private List<String> terms = new LinkedList<String>();
 }

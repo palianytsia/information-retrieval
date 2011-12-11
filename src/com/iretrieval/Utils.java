@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jdom.Element;
 
@@ -19,36 +21,31 @@ import com.sun.syndication.io.XmlReader;
 
 public class Utils
 {
-	/**
-	 * Prepares string for indexing: removes punctuation, sets case to lower,
-	 * etc.
-	 * 
-	 * @param string String to be processed
-	 * 
-	 * @return Normalized string
-	 */
-	public static String normalize(String string)
+	public static int countMatches(String regex, String input)
 	{
-		string = string.toLowerCase();
-		string = string.replaceAll("[^a-zа-я0-9+#]+", " ");
-		string = string.replaceAll("(\\s|^)((\\S{1}|\\d{2})(\\s|\\n|\\r|\\t|$){1})+", " ");
-		return string;
+		Pattern p = Pattern.compile(regex);
+		Matcher m = p.matcher(input);
+		int count = 0;
+		while (m.find())
+		{
+			count++;
+		}
+		return count;
 	}
 
 	/**
 	 * Creates a set of documents from files located at directory specified
 	 * 
-	 * @param feedUrl URL of RSS feed containing items to be source for
-	 *        documents.
+	 * @param feedUrl
+	 * URL of RSS feed containing items to be source for documents.
 	 * 
 	 * @return Set of documents, if provided path contains files to create
-	 *         documents from and creation was successful. Returns empty set
-	 *         otherwise.
+	 * documents from and creation was successful. Returns empty set otherwise.
 	 */
 	@SuppressWarnings("unchecked")
-	public static Set<Document> loadDocuments(URL feedUrl)
+	public static Collection<ZonedDocument> loadDocuments(URL feedUrl)
 	{
-		Set<Document> docs = new HashSet<Document>();
+		Set<ZonedDocument> docs = new HashSet<ZonedDocument>();
 		List<SyndEntry> items = new ArrayList<SyndEntry>();
 		try
 		{
@@ -68,7 +65,7 @@ public class Utils
 			String guid = item.getUri();
 			if (guid != null && !guid.isEmpty())
 			{
-				Document document = new Document(guid);
+				ZonedDocument document = new ZonedDocument(guid);
 
 				String title = item.getTitle();
 				if (title != null && !title.isEmpty())
@@ -126,5 +123,22 @@ public class Utils
 		}
 
 		return docs;
+	}
+
+	/**
+	 * Prepares string for indexing: removes punctuation, sets case to lower,
+	 * etc.
+	 * 
+	 * @param string
+	 * String to be processed
+	 * 
+	 * @return Normalized string
+	 */
+	public static String normalize(String string)
+	{
+		string = string.toLowerCase();
+		string = string.replaceAll("[^a-zа-я0-9+#]+", " ");
+		string = string.replaceAll("(\\s|^)((\\S{1}|\\d{2})(\\s|\\n|\\r|\\t|$){1})+", " ");
+		return string;
 	}
 }

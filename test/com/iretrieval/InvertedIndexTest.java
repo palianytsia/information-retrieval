@@ -14,12 +14,15 @@ import org.junit.Test;
 
 public class InvertedIndexTest
 {
+
+	private final String rssLocation = "http://feeds.feedburner.com/nefart/oanc";
+	private final String aDocGuid = "http://bookmart.vertykal/index.php?cmd=fullbookinformation&book=1";
 	private InvertedIndex index = null;
 
 	@Before
 	public void setUp() throws Exception
 	{
-		index = InvertedIndex.getInstance(new URL("http://bookmart.vertykal/?cmd=rss"));
+		index = InvertedIndex.getInstance(new URL(rssLocation));
 		assertNotNull(index);
 	}
 
@@ -48,14 +51,13 @@ public class InvertedIndexTest
 	@Test
 	public void testGetInstance() throws MalformedURLException
 	{
-		assertTrue(index == InvertedIndex.getInstance(new URL("http://bookmart.vertykal/?cmd=rss")));
+		assertTrue(index == InvertedIndex.getInstance(new URL(rssLocation)));
 	}
 
 	@Test
 	public void testGetDocumentFromCache()
 	{
-		Document document = index
-				.getDocumentFromCache("http://bookmart.vertykal/index.php?cmd=fullbookinformation&book=1");
+		Document document = index.getDocumentFromCache(aDocGuid);
 		assertNotNull(document);
 		System.out.println(document.getExtraFields());
 	}

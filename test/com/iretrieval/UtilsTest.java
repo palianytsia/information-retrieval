@@ -7,7 +7,7 @@ import static org.junit.Assert.fail;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Set;
+import java.util.Collection;
 
 import org.junit.Test;
 
@@ -17,7 +17,7 @@ public class UtilsTest
 	@Test
 	public void testLoadDocuments()
 	{
-		Set<Document> documents = null;
+		Collection<ZonedDocument> documents = null;
 		try
 		{
 			documents = Utils.loadDocuments(new URL("http://bookmart.vertykal/?cmd=rss"));
