@@ -10,9 +10,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.iretrieval.index.IndexType;
+import com.iretrieval.index.ZonedIndex;
+
 public class ZoneTest
 {
-	private final String rssLocation = "http://bookmart.pragmatictips.com/?cmd=rss";
+	private final String rssLocation = "";
 	private ZonedIndex index = null;
 	private Set<TrainingExample> examples = new HashSet<TrainingExample>();
 
@@ -21,7 +24,7 @@ public class ZoneTest
 	{
 		int[] localIds = { 344, 340, 342, 4, 128, 49, 42, 43, 45, 46 };
 		boolean[] relevance = { true, true, true, false, false, true, true, true, false, false };
-		index = ZonedIndex.getInstance(new URL(rssLocation));
+		index = (ZonedIndex) SearchEngine.getIndex(new URL(rssLocation), IndexType.ZonedIndex);
 		if (localIds.length == relevance.length)
 		{
 			for (int i = 0; i < localIds.length; i++)

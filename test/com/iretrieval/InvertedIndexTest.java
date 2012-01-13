@@ -12,6 +12,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.iretrieval.index.IndexType;
+import com.iretrieval.index.InvertedIndex;
+
 public class InvertedIndexTest
 {
 
@@ -22,7 +25,7 @@ public class InvertedIndexTest
 	@Before
 	public void setUp() throws Exception
 	{
-		index = InvertedIndex.getInstance(new URL(rssLocation));
+		index = (InvertedIndex) SearchEngine.getIndex(new URL(rssLocation), IndexType.InvertedIndex);
 		assertNotNull(index);
 	}
 
@@ -51,7 +54,7 @@ public class InvertedIndexTest
 	@Test
 	public void testGetInstance() throws MalformedURLException
 	{
-		assertTrue(index == InvertedIndex.getInstance(new URL(rssLocation)));
+		assertTrue(index == SearchEngine.getIndex(new URL(rssLocation), IndexType.InvertedIndex));
 	}
 
 	@Test

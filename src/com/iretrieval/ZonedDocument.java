@@ -15,6 +15,19 @@ public class ZonedDocument extends Document
 	{
 		super(guid);
 	}
+	
+	/**
+	 * Convert Document to ZonedDocument using this constructor
+	 */
+	public ZonedDocument (Document document) {
+		super(document.getGuid());
+		super.setCategories(document.getCategories());
+		super.setDescription(document.getDescription());
+		super.setExtraFields(document.getExtraFields());
+		super.setLink(document.getLink());
+		super.setPubDate(document.getPubDate());
+		super.setTitle(document.getTitle());
+	}
 
 	@Override
 	public boolean addCategory(String category)
@@ -69,7 +82,7 @@ public class ZonedDocument extends Document
 	 * @see "Introduction to information retrieval. 6.1.1 Weighted zone scoring"
 	 * 
 	 * @param term
-	 * 
+	 * Term to calculate weighted zone score for
 	 * 
 	 * @return Weighted zone score
 	 */
@@ -128,7 +141,7 @@ public class ZonedDocument extends Document
 		super.setTitle(title);
 		addZone(ZoneName.Title, getTitle());
 	}
-
+	
 	/**
 	 * Adds new zone to the document. If document already contains zone with
 	 * such name replaces it with a new one.
