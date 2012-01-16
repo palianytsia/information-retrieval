@@ -17,16 +17,16 @@ public class ZonedDocument extends Document
 	}
 	
 	/**
-	 * Convert Document to ZonedDocument using this constructor
+	 * Converts Document to ZonedDocument
 	 */
 	public ZonedDocument (Document document) {
 		super(document.getGuid());
-		super.setCategories(document.getCategories());
-		super.setDescription(document.getDescription());
-		super.setExtraFields(document.getExtraFields());
-		super.setLink(document.getLink());
-		super.setPubDate(document.getPubDate());
-		super.setTitle(document.getTitle());
+		setCategories(document.getCategories());
+		setDescription(document.getDescription());
+		setExtraFields(document.getExtraFields());
+		setLink(document.getLink());
+		setPubDate(document.getPubDate());
+		setTitle(document.getTitle());
 	}
 
 	@Override
@@ -151,13 +151,16 @@ public class ZonedDocument extends Document
 	 * appropriate name
 	 * 
 	 * @param content
-	 * Textual content of new zone
+	 * Textual content for a zone. If null given an empty string will be used instead.
 	 * 
 	 * @return The previous value of zone, or null if there was no zone set with
 	 * such name
 	 */
 	private Zone addZone(ZoneName name, String content)
 	{
+		if (content == null) {
+			content = "";
+		}
 		Zone newZone = new Zone(name, content.toLowerCase());
 		return zones.put(name, newZone);
 	}

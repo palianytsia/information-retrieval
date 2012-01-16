@@ -66,6 +66,7 @@ public class SearchEngine
 	public static void main(String[] args)
 	{
 		String source = null;
+		String examplesFileLocation = null;
 		URL feedURL = null;
 		IndexType intexType = IndexType.BasicIndex;
 
@@ -78,6 +79,9 @@ public class SearchEngine
 			else if (args[i].equals("-t"))
 			{
 				intexType = IndexType.valueOf(args[i + 1]);
+			}
+			else if (args[i].equals("-e")) {
+				examplesFileLocation = args[i + 1];
 			}
 		}
 		if (source == null)
@@ -102,6 +106,10 @@ public class SearchEngine
 		if (feedURL != null)
 		{
 			Index index = getIndex(feedURL, intexType);
+			if (intexType == IndexType.ZonedIndex && examplesFileLocation != null) {
+				Map<ZoneName, Double> newWeights = Zone.adjustWeights(TrainingExample.loadExamples(examplesFileLocation));
+				System.out.println("Zone weights have been adjusted " + newWeights);
+			}
 			System.out.println("Index is build. Now you are able to run "
 					+ "queries and retrieve documents. Type exit to quit.");
 			Scanner in = new Scanner(System.in);
@@ -137,7 +145,6 @@ public class SearchEngine
 	@SuppressWarnings("unchecked")
 	private static Collection<Document> loadDocuments(URL feedUrl)
 	{
-		System.out.println(feedUrl);
 		Set<Document> docs = new HashSet<Document>();
 		List<SyndEntry> items = new ArrayList<SyndEntry>();
 		try

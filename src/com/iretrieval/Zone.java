@@ -1,9 +1,10 @@
 package com.iretrieval;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class Zone
 {
@@ -49,7 +50,19 @@ public class Zone
 		return termFrequency.intValue();
 	}
 
-	public static void adjustWeights(Set<TrainingExample> examples)
+	/**
+	 * Given a set of training examples adjusts weights of known zones using
+	 * machine learning techniques.
+	 * 
+	 * @see "Introduction to information retrieval. 6.1.2 Learning weights"
+	 * 
+	 * @param examples
+	 * Collection of training examples to learn weights from
+	 * 
+	 * @return Unmodifiable map, where key is zone name and value is new,
+	 * adjusted weight of a zone
+	 */
+	public static Map<ZoneName, Double> adjustWeights(Collection<TrainingExample> examples)
 	{
 		for (int i = 0; i < ZoneName.values().length - 1; i++)
 		{
@@ -99,7 +112,8 @@ public class Zone
 					{
 						BigDecimal newWeightA = new BigDecimal(oldTotalWeight * g);
 						newWeightA = newWeightA.setScale(5, BigDecimal.ROUND_HALF_UP);
-						BigDecimal newWeightB = new BigDecimal(oldTotalWeight - newWeightA.doubleValue());
+						BigDecimal newWeightB = new BigDecimal(oldTotalWeight
+								- newWeightA.doubleValue());
 						newWeightB = newWeightB.setScale(5, BigDecimal.ROUND_HALF_UP);
 						zonesWeights.put(a, newWeightA.doubleValue());
 						zonesWeights.put(b, newWeightB.doubleValue());
@@ -107,6 +121,7 @@ public class Zone
 				}
 			}
 		}
+		return Collections.unmodifiableMap(zonesWeights);
 	}
 
 	/**

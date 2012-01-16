@@ -8,8 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.iretrieval.Document;
 import com.iretrieval.Query;
@@ -21,8 +23,8 @@ public class Index
 	/**
 	 * Constructs an inverted index for a given collection of documents.
 	 * 
-	 * @see "Introduction to information retrieval. 1.2 A first take at building"
-	 * an inverted index.
+	 * @see "Introduction to information retrieval. 1.2 A first take at building
+	 * an inverted index."
 	 * 
 	 * @param documents
 	 * Documents collection to index, among documents that are equal will be
@@ -40,10 +42,10 @@ public class Index
 					while (st.hasMoreTokens())
 					{
 						String term = st.nextToken();
-						List<String> postings = postingsList.get(term);
+						SortedSet<String> postings = postingsList.get(term);
 						if (postings == null)
 						{
-							postings = new LinkedList<String>();
+							postings = new TreeSet<String>();
 							postingsList.put(term, postings);
 						}
 						postings.add(document.getGuid());
@@ -58,7 +60,7 @@ public class Index
 	 * 
 	 * @return Unmodifiable set of words
 	 */
-	public Set<String> getDictionary()
+	protected Set<String> getDictionary()
 	{
 		return Collections.unmodifiableSet(postingsList.keySet());
 	};
@@ -92,7 +94,7 @@ public class Index
 		{
 			for (String term : query.getTerms())
 			{
-				List<String> postings = postingsList.get(term);
+				SortedSet<String> postings = postingsList.get(term);
 				if (postings != null)
 				{
 					for (String guid : postings)
@@ -105,7 +107,6 @@ public class Index
 					}
 				}
 			}
-			System.out.println(results);
 			Collections.sort(results, getDocumentComparator(query));
 			Collections.reverse(results);
 		}
@@ -136,6 +137,6 @@ public class Index
 	}
 
 	protected Map<String, Document> documentsCache = new HashMap<String, Document>();
-	protected Map<String, List<String>> postingsList = new TreeMap<String, List<String>>();
+	protected Map<String, SortedSet<String>> postingsList = new TreeMap<String, SortedSet<String>>();
 
 }

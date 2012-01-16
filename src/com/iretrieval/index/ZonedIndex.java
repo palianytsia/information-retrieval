@@ -15,6 +15,12 @@ public class ZonedIndex extends Index
 	}
 
 	@Override
+	public ZonedDocument getDocumentFromCache(String guid)
+	{
+		return (ZonedDocument) super.getDocumentFromCache(guid);
+	}
+
+	@Override
 	protected Comparator<Document> getDocumentComparator(final Query query)
 	{
 		return new Comparator<Document>()
@@ -25,12 +31,6 @@ public class ZonedIndex extends Index
 						Double.valueOf(((ZonedDocument) b).getWeightedZoneScore(query)));
 			}
 		};
-	}
-
-	@Override
-	public ZonedDocument getDocumentFromCache(String guid)
-	{
-		return (ZonedDocument) super.getDocumentFromCache(guid);
 	}
 
 }

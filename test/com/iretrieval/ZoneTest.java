@@ -1,9 +1,8 @@
 package com.iretrieval;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.After;
@@ -15,31 +14,23 @@ import com.iretrieval.index.ZonedIndex;
 
 public class ZoneTest
 {
-	private final String rssLocation = "";
+	private final String rssLocation = "http://bookmart.pragmatictips.com/?cmd=rss";
+	private final String examplesFileLocation = "/home/ivan/Java/workspaces/Education/Information Retrieval/docs/ZoneWeightsTrainingSet.xml";
 	private ZonedIndex index = null;
-	private Set<TrainingExample> examples = new HashSet<TrainingExample>();
+	private Set<TrainingExample> examples = null;
 
 	@Before
 	public void setUp() throws Exception
 	{
-		int[] localIds = { 344, 340, 342, 4, 128, 49, 42, 43, 45, 46 };
-		boolean[] relevance = { true, true, true, false, false, true, true, true, false, false };
 		index = (ZonedIndex) SearchEngine.getIndex(new URL(rssLocation), IndexType.ZonedIndex);
-		if (localIds.length == relevance.length)
-		{
-			for (int i = 0; i < localIds.length; i++)
-			{
-				Document document = index.getDocumentFromCache("http://bookmart.pragmatictips.com/"
-						+ "index.php?cmd=fullbookinformation&book=" + localIds[i]);
-				assertNotNull(document);
-				examples.add(new TrainingExample((ZonedDocument) document, "java", relevance[i]));
-			}
-		}
+		examples = TrainingExample.loadExamples(examplesFileLocation);
 	}
 
 	@After
 	public void tearDown() throws Exception
 	{
+		index = null;
+		examples = null;
 	}
 
 	private void testWeights()

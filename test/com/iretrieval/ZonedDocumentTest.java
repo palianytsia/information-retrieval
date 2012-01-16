@@ -1,6 +1,6 @@
 package com.iretrieval;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 import java.net.URL;
 
@@ -15,7 +15,6 @@ public class ZonedDocumentTest
 {
 
 	private final String rssLocation = "http://bookmart.pragmatictips.com/?cmd=rss";
-	private final Query query = new Query("Java");
 	private ZonedIndex index = null;
 
 	@Before
@@ -31,12 +30,14 @@ public class ZonedDocumentTest
 	}
 
 	@Test
-	public void testGetWeightedZoneScore()
+	public void testGetZone()
 	{
 		ZonedDocument document = index.getDocumentFromCache("http://bookmart.pragmatictips.com/"
-						+ "index.php?cmd=fullbookinformation&book=" + 23);
-		double weightedZoneScore = document.getWeightedZoneScore(query);
-		double termFrequency = document.getTermFrequency(query);
-		assertFalse(termFrequency == weightedZoneScore);
+						+ "index.php?cmd=fullbookinformation&book=" + 397);
+		System.out.println(document.getZones());
+		for(ZoneName zoneName: ZoneName.values()) {
+			Zone zone = document.getZone(zoneName);
+			assertNotNull(zone);
+		}
 	}
 }

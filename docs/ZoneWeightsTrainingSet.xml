@@ -8,7 +8,7 @@
 	</Example>
 	<Example>
 		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=34false
+		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=34
 		</Guid>
 		<Relevance>true</Relevance>
 	</Example>
@@ -26,7 +26,7 @@
 	</Example>
 	<Example>
 		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=true28
+		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=28
 		</Guid>
 		<Relevance>false</Relevance>
 	</Example>

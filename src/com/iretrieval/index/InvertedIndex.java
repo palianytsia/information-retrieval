@@ -2,7 +2,7 @@ package com.iretrieval.index;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
+import java.util.SortedSet;
 
 import com.iretrieval.Document;
 import com.iretrieval.Query;
@@ -13,6 +13,19 @@ public class InvertedIndex extends Index
 	public InvertedIndex(Collection<? extends Document> documents)
 	{
 		super(documents);
+	}
+
+	@Override
+	protected Comparator<Document> getDocumentComparator(final Query query)
+	{
+		return new Comparator<Document>()
+		{
+			public int compare(Document a, Document b)
+			{
+				return Double.valueOf(getTfIdfWeight(a, query)).compareTo(
+						Double.valueOf(getTfIdfWeight(b, query)));
+			}
+		};
 	}
 
 	/**
@@ -26,9 +39,9 @@ public class InvertedIndex extends Index
 	 * 
 	 * @return Document frequency or 0 if it is impossible to get one.
 	 */
-	public int getDocumentFrequency(String term)
+	protected int getDocumentFrequency(String term)
 	{
-		List<String> postings = postingsList.get(term);
+		SortedSet<String> postings = postingsList.get(term);
 		if (postings != null)
 		{
 			return postings.size();
@@ -48,12 +61,13 @@ public class InvertedIndex extends Index
 	 * @return Inverse document frequency or 0 if it is impossible to calculate
 	 * one.
 	 */
-	public double getInverseDocumentFrequency(String term)
+	protected double getInverseDocumentFrequency(String term)
 	{
-		int documentFrequency = getDocumentFrequency(term);
 		if (documentsCache != null && documentsCache.size() > 0)
 		{
-			double value = documentFrequency / (double) documentsCache.size();
+			double documentFrequency = getDocumentFrequency(term);
+			double collectionSize = documentsCache.size();
+			double value = Math.log10(collectionSize/documentFrequency);
 			return value;
 		}
 		return 0.0;
@@ -74,7 +88,7 @@ public class InvertedIndex extends Index
 	 * 
 	 * @return tf-idf weight.
 	 */
-	public double getTfIdfWeight(Document document, Query query)
+	protected double getTfIdfWeight(Document document, Query query)
 	{
 		double weight = 0.0;
 		for (String term : query.getTerms())
@@ -82,19 +96,6 @@ public class InvertedIndex extends Index
 			weight += document.getTermFrequency(term) * getInverseDocumentFrequency(term);
 		}
 		return weight;
-	}
-
-	@Override
-	protected Comparator<Document> getDocumentComparator(final Query query)
-	{
-		return new Comparator<Document>()
-		{
-			public int compare(Document a, Document b)
-			{
-				return Double.valueOf(getTfIdfWeight(a, query)).compareTo(
-						Double.valueOf(getTfIdfWeight(b, query)));
-			}
-		};
 	}
 
 }
