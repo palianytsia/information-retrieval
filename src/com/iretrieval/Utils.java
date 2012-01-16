@@ -21,23 +21,6 @@ public class Utils
 	}
 
 	/**
-	 * Prepares string for indexing: removes punctuation, sets case to lower,
-	 * etc.
-	 * 
-	 * @param string
-	 * String to be processed
-	 * 
-	 * @return Normalized string
-	 */
-	public static String normalize(String string)
-	{
-		string = string.toLowerCase();
-		string = string.replaceAll("[^a-zа-я0-9+#]+", " ");
-		string = string.replaceAll("(\\s|^)((\\S{1}|\\d{2})(\\s|\\n|\\r|\\t|$){1})+", " ");
-		return string;
-	}
-
-	/**
 	 * This method is used to load the XML file to a dom4j Document and return
 	 * it
 	 * 
@@ -59,5 +42,22 @@ public class Utils
 			e.printStackTrace();
 		}
 		return document;
+	}
+
+	/**
+	 * Prepares string for indexing: removes punctuation, sets case to lower,
+	 * etc.
+	 * 
+	 * @param string
+	 * String to be processed
+	 * 
+	 * @return Normalized string
+	 */
+	public static String normalize(String string)
+	{
+		string = string.toLowerCase();
+		string = string.replaceAll("[^a-zа-я0-9+#]+", " ");
+		string = string.replaceAll("(\\s|^)((\\S{1}|\\d{2})(\\s|\\n|\\r|\\t|$){1})+", " ");
+		return string;
 	}
 }

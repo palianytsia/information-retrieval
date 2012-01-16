@@ -1,6 +1,6 @@
 package com.iretrieval;
 
-enum ZoneName
+public enum ZoneName
 {
 	Categories, Description, ExtraFields, Title
 }

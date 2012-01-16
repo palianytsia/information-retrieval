@@ -2,5 +2,5 @@ package com.iretrieval.index;
 
 public enum IndexType
 {
-	BasicIndex, InvertedIndex, ZonedIndex, VectorSpaceIndex
+	BasicIndex, InvertedIndex, VectorSpaceIndex, ZonedIndex
 }

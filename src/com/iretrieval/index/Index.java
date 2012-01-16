@@ -56,16 +56,6 @@ public class Index
 	}
 
 	/**
-	 * Gets the dictionary
-	 * 
-	 * @return Unmodifiable set of words
-	 */
-	protected Set<String> getDictionary()
-	{
-		return Collections.unmodifiableSet(postingsList.keySet());
-	};
-
-	/**
 	 * Given a GUID returns cached copy of the document
 	 * 
 	 * @param guid
@@ -77,7 +67,7 @@ public class Index
 	public Document getDocumentFromCache(String guid)
 	{
 		return documentsCache.get(guid);
-	}
+	};
 
 	/**
 	 * Retrieves documents that satisfy the query given
@@ -111,6 +101,16 @@ public class Index
 			Collections.reverse(results);
 		}
 		return results;
+	}
+
+	/**
+	 * Gets the dictionary
+	 * 
+	 * @return Unmodifiable set of words
+	 */
+	protected Set<String> getDictionary()
+	{
+		return Collections.unmodifiableSet(postingsList.keySet());
 	}
 
 	/**

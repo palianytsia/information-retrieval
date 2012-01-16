@@ -5,10 +5,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -27,48 +25,13 @@ import com.sun.syndication.io.XmlReader;
 
 public class SearchEngine
 {
-	public static Index getIndex(URL feedURL, IndexType type)
-	{
-		Map<IndexType, Index> group = indexes.get(feedURL);
-		if (group == null)
-		{
-			group = new HashMap<IndexType, Index>();
-			indexes.put(feedURL, group);
-		}
-
-		Index index = group.get(type);
-		if (index == null)
-		{
-			Collection<Document> documents = loadDocuments(feedURL);
-			if (type.equals(IndexType.ZonedIndex))
-			{
-				Collection<ZonedDocument> zonedDocuments = new HashSet<ZonedDocument>();
-				for (Document document : documents)
-				{
-					zonedDocuments.add(new ZonedDocument(document));
-				}
-				index = new ZonedIndex(zonedDocuments);
-			}
-			else if (type.equals(IndexType.InvertedIndex))
-			{
-				index = new InvertedIndex(documents);
-			}
-			else
-			{
-				index = new Index(documents);
-			}
-		}
-		group.put(type, index);
-
-		return index;
-	}
-
 	public static void main(String[] args)
 	{
 		String source = null;
 		String examplesFileLocation = null;
 		URL feedURL = null;
 		IndexType intexType = IndexType.BasicIndex;
+		Index index = null;
 
 		for (int i = 0; i < args.length - 1; i++)
 		{
@@ -80,7 +43,8 @@ public class SearchEngine
 			{
 				intexType = IndexType.valueOf(args[i + 1]);
 			}
-			else if (args[i].equals("-e")) {
+			else if (args[i].equals("-e"))
+			{
 				examplesFileLocation = args[i + 1];
 			}
 		}
@@ -105,10 +69,18 @@ public class SearchEngine
 
 		if (feedURL != null)
 		{
-			Index index = getIndex(feedURL, intexType);
-			if (intexType == IndexType.ZonedIndex && examplesFileLocation != null) {
-				Map<ZoneName, Double> newWeights = Zone.adjustWeights(TrainingExample.loadExamples(examplesFileLocation));
-				System.out.println("Zone weights have been adjusted " + newWeights);
+			Collection<Document> documents = loadDocuments(feedURL);
+			if (intexType.equals(IndexType.ZonedIndex))
+			{
+				index = new ZonedIndex(ZonedIndex.convertDocuments(documents), examplesFileLocation);
+			}
+			else if (intexType.equals(IndexType.InvertedIndex))
+			{
+				index = new InvertedIndex(documents);
+			}
+			else
+			{
+				index = new Index(documents);
 			}
 			System.out.println("Index is build. Now you are able to run "
 					+ "queries and retrieve documents. Type exit to quit.");
@@ -224,7 +196,5 @@ public class SearchEngine
 
 		return docs;
 	}
-
-	private static Map<URL, Map<IndexType, Index>> indexes = new HashMap<URL, Map<IndexType, Index>>();
 
 }

@@ -8,15 +8,6 @@ import java.util.Map;
 public class ZonedDocument extends Document
 {
 	/**
-	 * Simply calls {@link com.iretrieval.Document#Document(String) superclass
-	 * constructor}. Zones will be created on setters calls.
-	 */
-	public ZonedDocument(String guid)
-	{
-		super(guid);
-	}
-	
-	/**
 	 * Converts Document to ZonedDocument
 	 */
 	public ZonedDocument (Document document) {
@@ -27,6 +18,15 @@ public class ZonedDocument extends Document
 		setLink(document.getLink());
 		setPubDate(document.getPubDate());
 		setTitle(document.getTitle());
+	}
+	
+	/**
+	 * Simply calls {@link com.iretrieval.Document#Document(String) superclass
+	 * constructor}. Zones will be created on setters calls.
+	 */
+	public ZonedDocument(String guid)
+	{
+		super(guid);
 	}
 
 	@Override
@@ -54,46 +54,6 @@ public class ZonedDocument extends Document
 			termFrequency += zone.getTermFrequency(term);
 		}
 		return termFrequency;
-	}
-
-	/**
-	 * Calculates compound weighted zone score for all terms in a query. Simply
-	 * calls {@link #getWeightedZoneScore(String term) getWeightedZoneScore} on
-	 * each term and adds the result to the return value
-	 * 
-	 * @param query
-	 * Query object, can't be null, should contain set of query terms
-	 * 
-	 * @return Compound weighted zone score
-	 */
-	public double getWeightedZoneScore(Query query)
-	{
-		double score = 0.0;
-		for (String term : query.getTerms())
-		{
-			score += getWeightedZoneScore(term);
-		}
-		return score;
-	}
-
-	/**
-	 * Calculates document's weighted zone score according to the specified term
-	 * 
-	 * @see "Introduction to information retrieval. 6.1.1 Weighted zone scoring"
-	 * 
-	 * @param term
-	 * Term to calculate weighted zone score for
-	 * 
-	 * @return Weighted zone score
-	 */
-	public double getWeightedZoneScore(String term)
-	{
-		double score = 0.0;
-		for (Zone zone : getZones())
-		{
-			score += zone.getTermFrequency(term) * Zone.getWeight(zone.getName());
-		}
-		return score;
 	}
 
 	/**

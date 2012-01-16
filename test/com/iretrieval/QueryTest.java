@@ -8,12 +8,6 @@ public class QueryTest
 {
 
 	@Test
-	public void testQuery()
-	{
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
 	public void testGetQueryString()
 	{
 		fail("Not yet implemented"); // TODO
@@ -21,6 +15,12 @@ public class QueryTest
 
 	@Test
 	public void testGetTerms()
+	{
+		fail("Not yet implemented"); // TODO
+	}
+
+	@Test
+	public void testQuery()
 	{
 		fail("Not yet implemented"); // TODO
 	}

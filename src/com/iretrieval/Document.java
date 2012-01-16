@@ -154,7 +154,11 @@ public class Document
 	 */
 	public Date getPubDate()
 	{
-		return (Date) pubDate.clone();
+		if (pubDate != null)
+		{
+			return (Date) pubDate.clone();
+		}
+		return null;
 	}
 
 	/**
@@ -344,7 +348,14 @@ public class Document
 	 */
 	public void setPubDate(Date pubDate)
 	{
-		this.pubDate = (Date) pubDate.clone();
+		if (pubDate == null)
+		{
+			this.pubDate = null;
+		}
+		else
+		{
+			this.pubDate = (Date) pubDate.clone();
+		}
 	}
 
 	/**
