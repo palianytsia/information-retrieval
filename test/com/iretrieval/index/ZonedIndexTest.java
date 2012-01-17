@@ -16,7 +16,7 @@ public class ZonedIndexTest extends IndexTest
 	public void setUp()
 	{
 		super.setUp();
-		zonedIndex = new ZonedIndex(ZonedIndex.convertDocuments(IndexTest.docs), null);
+		zonedIndex = new ZonedIndex(ZonedIndex.convertDocuments(IndexTest.docs), null); // TODO: add training examples here
 		assertNotNull(zonedIndex);
 	}
 	

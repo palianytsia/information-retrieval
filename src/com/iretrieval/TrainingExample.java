@@ -1,6 +1,5 @@
 package com.iretrieval;
 
-
 public class TrainingExample
 {
 	public TrainingExample(ZonedDocument document, String term, boolean relevant)

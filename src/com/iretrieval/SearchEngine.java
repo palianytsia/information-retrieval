@@ -15,6 +15,7 @@ import org.jdom.Element;
 import com.iretrieval.index.Index;
 import com.iretrieval.index.IndexType;
 import com.iretrieval.index.InvertedIndex;
+import com.iretrieval.index.VectorSpaceIndex;
 import com.iretrieval.index.ZonedIndex;
 import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -73,16 +74,24 @@ public class SearchEngine
 			if (intexType.equals(IndexType.ZonedIndex))
 			{
 				index = new ZonedIndex(ZonedIndex.convertDocuments(documents), examplesFileLocation);
+				System.out.print("Zoned ");
 			}
 			else if (intexType.equals(IndexType.InvertedIndex))
 			{
 				index = new InvertedIndex(documents);
+				System.out.print("Inverted ");
+			}
+			else if (intexType.equals(IndexType.VectorSpaceIndex))
+			{
+				index = new VectorSpaceIndex(documents);
+				System.out.print("Vector Space ");
 			}
 			else
 			{
 				index = new Index(documents);
+				System.out.print("Basic ");
 			}
-			System.out.println("Index is build. Now you are able to run "
+			System.out.println("Index has been build. Now you are able to run "
 					+ "queries and retrieve documents. Type exit to quit.");
 			Scanner in = new Scanner(System.in);
 			String command = "";

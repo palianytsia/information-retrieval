@@ -27,8 +27,7 @@ public class Index
 	 * an inverted index."
 	 * 
 	 * @param documents
-	 * Documents collection to index, among documents that are equal will be
-	 * indexed only the first one.
+	 * Collection of the documents to be indexed, duplicates will be ignored
 	 */
 	public Index(Collection<? extends Document> documents)
 	{

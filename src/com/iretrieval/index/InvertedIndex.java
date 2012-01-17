@@ -10,6 +10,12 @@ import com.iretrieval.Query;
 public class InvertedIndex extends Index
 {
 
+	/**
+	 * Simply calls the {@link Index#Index(Collection) superclass constructor}
+	 * 
+	 * @param documents
+	 * Collection of the documents to be indexed, duplicates will be ignored
+	 */
 	public InvertedIndex(Collection<? extends Document> documents)
 	{
 		super(documents);

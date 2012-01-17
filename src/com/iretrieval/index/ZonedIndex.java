@@ -22,15 +22,6 @@ import com.iretrieval.ZonedDocument;
 
 public class ZonedIndex extends Index
 {
-	public static Collection<ZonedDocument> convertDocuments(Collection<Document> documents) {
-		Collection<ZonedDocument> zonedDocuments = new HashSet<ZonedDocument>();
-		for (Document document : documents)
-		{
-			zonedDocuments.add(new ZonedDocument(document));
-		}
-		return zonedDocuments;
-	}
-	
 	public ZonedIndex(Collection<ZonedDocument> documents)
 	{
 		super(documents);
@@ -40,7 +31,7 @@ public class ZonedIndex extends Index
 			zonesWeights.put(name, (1.0 / ZoneName.values().length));
 		}
 	}
-
+	
 	public ZonedIndex(Collection<ZonedDocument> documents, String pathToExamples)
 	{
 		this(documents);
@@ -55,6 +46,78 @@ public class ZonedIndex extends Index
 	public ZonedDocument getDocumentFromCache(String guid)
 	{
 		return (ZonedDocument) super.getDocumentFromCache(guid);
+	}
+
+	@Override
+	protected Comparator<Document> getDocumentComparator(final Query query)
+	{
+		return new Comparator<Document>()
+		{
+			public int compare(Document a, Document b)
+			{
+				return Double.valueOf(getWeightedZoneScore((ZonedDocument) a, query)).compareTo(
+						Double.valueOf(getWeightedZoneScore((ZonedDocument) b, query)));
+			}
+		};
+	}
+
+	/**
+	 * Calculates compound weighted zone score for all terms in a query. Simply
+	 * calls {@link #getWeightedZoneScore(String term) getWeightedZoneScore} on
+	 * each term and adds the result to the return value
+	 * 
+	 * @param query
+	 * Query object, can't be null, should contain set of query terms
+	 * 
+	 * @return Compound weighted zone score
+	 */
+	protected double getWeightedZoneScore(ZonedDocument document, Query query)
+	{
+		double score = 0.0;
+		for (String term : query.getTerms())
+		{
+			score += getWeightedZoneScore(document, term);
+		}
+		return score;
+	}
+
+	/**
+	 * Calculates document's weighted zone score according to the specified term
+	 * 
+	 * @see "Introduction to information retrieval. 6.1.1 Weighted zone scoring"
+	 * 
+	 * @param term
+	 * Term to calculate weighted zone score for
+	 * 
+	 * @return Weighted zone score
+	 */
+	protected double getWeightedZoneScore(ZonedDocument document, String term)
+	{
+		double score = 0.0;
+		for (Zone zone : document.getZones())
+		{
+			score += zone.getTermFrequency(term) * getZoneWeight(zone.getName());
+		}
+		return score;
+	}
+
+	/**
+	 * Retrieves a weight for a given zone
+	 * 
+	 * @param name
+	 * Zone name, must be present in list returned by
+	 * {@link #getRegisteredZones() getRegisteredZones} method
+	 * 
+	 * @return Zone weight, or 0 if there is no zone registered with such name
+	 */
+	protected double getZoneWeight(ZoneName name)
+	{
+		double weight = 0.0;
+		if (zonesWeights.containsKey(name))
+		{
+			weight = zonesWeights.get(name);
+		}
+		return weight;
 	}
 
 	/**
@@ -131,78 +194,6 @@ public class ZonedIndex extends Index
 		return Collections.unmodifiableMap(zonesWeights);
 	}
 
-	@Override
-	protected Comparator<Document> getDocumentComparator(final Query query)
-	{
-		return new Comparator<Document>()
-		{
-			public int compare(Document a, Document b)
-			{
-				return Double.valueOf(getWeightedZoneScore((ZonedDocument) a, query)).compareTo(
-						Double.valueOf(getWeightedZoneScore((ZonedDocument) b, query)));
-			}
-		};
-	}
-
-	/**
-	 * Calculates compound weighted zone score for all terms in a query. Simply
-	 * calls {@link #getWeightedZoneScore(String term) getWeightedZoneScore} on
-	 * each term and adds the result to the return value
-	 * 
-	 * @param query
-	 * Query object, can't be null, should contain set of query terms
-	 * 
-	 * @return Compound weighted zone score
-	 */
-	protected double getWeightedZoneScore(ZonedDocument document, Query query)
-	{
-		double score = 0.0;
-		for (String term : query.getTerms())
-		{
-			score += getWeightedZoneScore(document, term);
-		}
-		return score;
-	}
-
-	/**
-	 * Calculates document's weighted zone score according to the specified term
-	 * 
-	 * @see "Introduction to information retrieval. 6.1.1 Weighted zone scoring"
-	 * 
-	 * @param term
-	 * Term to calculate weighted zone score for
-	 * 
-	 * @return Weighted zone score
-	 */
-	protected double getWeightedZoneScore(ZonedDocument document, String term)
-	{
-		double score = 0.0;
-		for (Zone zone : document.getZones())
-		{
-			score += zone.getTermFrequency(term) * getZoneWeight(zone.getName());
-		}
-		return score;
-	}
-
-	/**
-	 * Retrieves a weight for a given zone
-	 * 
-	 * @param name
-	 * Zone name, must be present in list returned by
-	 * {@link #getRegisteredZones() getRegisteredZones} method
-	 * 
-	 * @return Zone weight, or 0 if there is no zone registered with such name
-	 */
-	protected double getZoneWeight(ZoneName name)
-	{
-		double weight = 0.0;
-		if (zonesWeights.containsKey(name))
-		{
-			weight = zonesWeights.get(name);
-		}
-		return weight;
-	}
-
 	/**
 	 * Loads training examples from XML file for learning zone weights.
 	 * 
@@ -241,6 +232,15 @@ public class ZonedIndex extends Index
 			}
 		}
 		return examples;
+	}
+
+	public static Collection<ZonedDocument> convertDocuments(Collection<Document> documents) {
+		Collection<ZonedDocument> zonedDocuments = new HashSet<ZonedDocument>();
+		for (Document document : documents)
+		{
+			zonedDocuments.add(new ZonedDocument(document));
+		}
+		return zonedDocuments;
 	}
 
 	private Map<ZoneName, Double> zonesWeights = null;

@@ -10,7 +10,8 @@ public class ZonedDocument extends Document
 	/**
 	 * Converts Document to ZonedDocument
 	 */
-	public ZonedDocument (Document document) {
+	public ZonedDocument(Document document)
+	{
 		super(document.getGuid());
 		setCategories(document.getCategories());
 		setDescription(document.getDescription());
@@ -19,7 +20,7 @@ public class ZonedDocument extends Document
 		setPubDate(document.getPubDate());
 		setTitle(document.getTitle());
 	}
-	
+
 	/**
 	 * Simply calls {@link com.iretrieval.Document#Document(String) superclass
 	 * constructor}. Zones will be created on setters calls.
@@ -101,7 +102,7 @@ public class ZonedDocument extends Document
 		super.setTitle(title);
 		addZone(ZoneName.Title, getTitle());
 	}
-	
+
 	/**
 	 * Adds new zone to the document. If document already contains zone with
 	 * such name replaces it with a new one.
@@ -111,14 +112,16 @@ public class ZonedDocument extends Document
 	 * appropriate name
 	 * 
 	 * @param content
-	 * Textual content for a zone. If null given an empty string will be used instead.
+	 * Textual content for a zone. If null given an empty string will be used
+	 * instead.
 	 * 
 	 * @return The previous value of zone, or null if there was no zone set with
 	 * such name
 	 */
 	private Zone addZone(ZoneName name, String content)
 	{
-		if (content == null) {
+		if (content == null)
+		{
 			content = "";
 		}
 		Zone newZone = new Zone(name, content.toLowerCase());

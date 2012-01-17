@@ -35,13 +35,5 @@ public class VectorSpaceIndexTest extends InvertedIndexTest
 		assertEquals(null, 0.12502479392953, vectorSpaceIndex.getCosineSimilarity(IndexTest.c, query), 0.001);
 	}
 
-	@Test
-	public void testGetEuclideanLength()
-	{
-		assertEquals(null, 2.44948974278318, vectorSpaceIndex.getEuclideanLength(IndexTest.a), 0.001);
-		assertEquals(null, 1.41421356237310, vectorSpaceIndex.getEuclideanLength(IndexTest.b), 0.001);
-		assertEquals(null, 1.41421356237310, vectorSpaceIndex.getEuclideanLength(IndexTest.c), 0.001);
-	}
-
 	private VectorSpaceIndex vectorSpaceIndex = null;
 }

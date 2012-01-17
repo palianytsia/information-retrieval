@@ -2,11 +2,13 @@ package com.iretrieval;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
-public class Query
+public class Query implements TermStatistics
 {
 	public Query(String queryString)
 	{
@@ -15,10 +17,7 @@ public class Query
 		while (st.hasMoreTokens())
 		{
 			String term = st.nextToken();
-			if (!terms.contains(term))
-			{
-				terms.add(term);
-			}
+			terms.add(term);
 		}
 	}
 
@@ -27,9 +26,20 @@ public class Query
 		return queryString;
 	}
 
-	public List<String> getTerms()
+	public int getTermFrequency(String term)
 	{
-		return Collections.unmodifiableList(terms);
+		Integer termFrequency = termFrequencies.get(term);
+		if (termFrequency == null)
+		{
+			termFrequency = Utils.countMatches("\\b" + term + "\\b", queryString);
+			termFrequencies.put(term, termFrequency);
+		}
+		return termFrequency.intValue();
+	}
+
+	public Set<String> getTerms()
+	{
+		return Collections.unmodifiableSet(terms);
 	}
 
 	public void setQueryString(String queryString)
@@ -48,5 +58,7 @@ public class Query
 
 	private String queryString;
 
-	private List<String> terms = new LinkedList<String>();
+	private Map<String, Integer> termFrequencies = new HashMap<String, Integer>();
+
+	private Set<String> terms = new HashSet<String>();
 }
