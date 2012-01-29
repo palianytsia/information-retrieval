@@ -73,7 +73,7 @@ public class SearchEngine
 			Collection<Document> documents = loadDocuments(feedURL);
 			if (intexType.equals(IndexType.ZonedIndex))
 			{
-				index = new ZonedIndex(ZonedIndex.convertDocuments(documents), examplesFileLocation);
+				index = new ZonedIndex(ZonedIndex.convertDocuments(documents), TrainingExample.loadExamples(examplesFileLocation));
 				System.out.print("Zoned ");
 			}
 			else if (intexType.equals(IndexType.InvertedIndex))

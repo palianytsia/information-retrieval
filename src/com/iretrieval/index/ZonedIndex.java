@@ -2,20 +2,14 @@ package com.iretrieval.index;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.dom4j.Node;
 
 import com.iretrieval.Document;
 import com.iretrieval.Query;
 import com.iretrieval.TrainingExample;
-import com.iretrieval.Utils;
 import com.iretrieval.Zone;
 import com.iretrieval.ZoneName;
 import com.iretrieval.ZonedDocument;
@@ -32,13 +26,14 @@ public class ZonedIndex extends Index
 		}
 	}
 
-	public ZonedIndex(Collection<ZonedDocument> documents, String pathToExamples)
+	public ZonedIndex(Collection<ZonedDocument> documents, Collection<TrainingExample> examples)
 	{
 		this(documents);
-		if (pathToExamples != null)
-		{
-			Set<TrainingExample> examples = loadExamples(pathToExamples);
-			adjustWeights(examples);
+		if (!adjustWeights(examples)) {
+			System.out.printf("Zones' weights were adjusted. New weights: %s.%n", zonesWeights);
+		}
+		else {
+			System.err.printf("Examples weren't good enough to adjust zones' weights. Weights remain the same: %s.%n", zonesWeights);
 		}
 	}
 
@@ -129,11 +124,11 @@ public class ZonedIndex extends Index
 	 * @param examples
 	 * Collection of training examples to learn weights from
 	 * 
-	 * @return Unmodifiable map, where key is zone name and value is new,
-	 * adjusted weight of a zone
+	 * @return TRUE if weights were adjusted, FALSE otherwise
 	 */
-	private Map<ZoneName, Double> adjustWeights(Collection<TrainingExample> examples)
+	private boolean adjustWeights(Collection<TrainingExample> examples)
 	{
+		Map<ZoneName, Double> oldZonesWeights = zonesWeights;
 		for (int i = 0; i < ZoneName.values().length - 1; i++)
 		{
 			for (int j = i + 1; j < ZoneName.values().length; j++)
@@ -147,38 +142,47 @@ public class ZonedIndex extends Index
 				int n10n = 0;
 				for (TrainingExample example : examples)
 				{
-					Zone zoneA = example.getDocument().getZone(a);
-					Zone zoneB = example.getDocument().getZone(b);
-					if ((zoneA == null || zoneA.getTermFrequency(example.getTerm()) == 0)
-							&& (zoneB != null && zoneB.getTermFrequency(example.getTerm()) > 0)
-							&& example.isRelevant())
+					ZonedDocument document = getDocumentFromCache(example.getDocumentGuid());
+					if (document == null)
 					{
-						n01r++;
+						System.err.printf("Document [%s] is not present in the index cache.%n",
+								example.getDocumentGuid());
 					}
-					if ((zoneA == null || zoneA.getTermFrequency(example.getTerm()) == 0)
-							&& (zoneB != null && zoneB.getTermFrequency(example.getTerm()) > 0)
-							&& !example.isRelevant())
+					else
 					{
-						n01n++;
-					}
-					if ((zoneA != null && zoneA.getTermFrequency(example.getTerm()) > 0)
-							&& (zoneB == null || zoneB.getTermFrequency(example.getTerm()) == 0)
-							&& example.isRelevant())
-					{
-						n10r++;
-					}
-					if ((zoneA != null && zoneA.getTermFrequency(example.getTerm()) > 0)
-							&& (zoneB == null || zoneB.getTermFrequency(example.getTerm()) == 0)
-							&& !example.isRelevant())
-					{
-						n10n++;
+						Zone zoneA = document.getZone(a);
+						Zone zoneB = document.getZone(b);
+						if ((zoneA == null || zoneA.getTermFrequency(example.getTerm()) == 0)
+								&& (zoneB != null && zoneB.getTermFrequency(example.getTerm()) > 0)
+								&& example.isRelevant())
+						{
+							n01r++;
+						}
+						if ((zoneA == null || zoneA.getTermFrequency(example.getTerm()) == 0)
+								&& (zoneB != null && zoneB.getTermFrequency(example.getTerm()) > 0)
+								&& !example.isRelevant())
+						{
+							n01n++;
+						}
+						if ((zoneA != null && zoneA.getTermFrequency(example.getTerm()) > 0)
+								&& (zoneB == null || zoneB.getTermFrequency(example.getTerm()) == 0)
+								&& example.isRelevant())
+						{
+							n10r++;
+						}
+						if ((zoneA != null && zoneA.getTermFrequency(example.getTerm()) > 0)
+								&& (zoneB == null || zoneB.getTermFrequency(example.getTerm()) == 0)
+								&& !example.isRelevant())
+						{
+							n10n++;
+						}
 					}
 				}
 				if (n10r != 0 || n10n != 0 || n01r != 0 || n01n != 0)
 				{
 					double g = Double.valueOf(n10r + n01n)
 							/ Double.valueOf(n10r + n10n + n01r + n01n);
-					if (g != 0)
+					if (g > 0 && g < 1)
 					{
 						BigDecimal newWeightA = new BigDecimal(oldTotalWeight * g);
 						newWeightA = newWeightA.setScale(5, BigDecimal.ROUND_HALF_UP);
@@ -191,47 +195,10 @@ public class ZonedIndex extends Index
 				}
 			}
 		}
-		return Collections.unmodifiableMap(zonesWeights);
-	}
-
-	/**
-	 * Loads training examples from XML file for learning zone weights.
-	 * 
-	 * @param xmlFileLocation
-	 * Location of the XML file containing examples description. All examples
-	 * should contain valid document references within index source specified
-	 * for examples set, otherwise they will be ignored.
-	 * 
-	 * @return Set of training examples or empty set if no valid examples where
-	 * present in the XML file given as a parameter.
-	 */
-	private Set<TrainingExample> loadExamples(String xmlFileLocation)
-	{
-		Set<TrainingExample> examples = new HashSet<TrainingExample>();
-		org.dom4j.Document document = Utils.getDom4jDocument(xmlFileLocation);
-		List<?> nodes = document.selectNodes("//ExampleSet/Example");
-		for (Object nodeObj : nodes)
-		{
-			Node node = (Node) nodeObj;
-			Node term = node.selectSingleNode("Term");
-			Node guid = node.selectSingleNode("Guid");
-			Node relevance = node.selectSingleNode("Relevance");
-			if (term != null && guid != null && relevance != null)
-			{
-				ZonedDocument zonedDocument = this.getDocumentFromCache(guid.getText().trim());
-				if (zonedDocument != null)
-				{
-					examples.add(new TrainingExample(zonedDocument, term.getText(), Boolean
-							.parseBoolean(relevance.getText())));
-				}
-				else
-				{
-					System.err.printf("Document [%s] is not present in the index cache.%n", guid
-							.getText().trim());
-				}
-			}
+		if (oldZonesWeights.equals(zonesWeights)) {
+			return false;
 		}
-		return examples;
+		return true;
 	}
 
 	public static Collection<ZonedDocument> convertDocuments(Collection<Document> documents)
