@@ -61,12 +61,15 @@ public class Utils
 	 * trailing and leading whitespace, sets case to lower, etc.
 	 * 
 	 * @param string
-	 * String to be processed
+	 * String to be processed. If null is passed returns an empty string.
 	 * 
 	 * @return Normalized string
 	 */
 	public static String normalize(String string)
 	{
+		if (string == null) {
+			return "";
+		}
 		string = Jsoup.parse(string).text();
 		string = string.toLowerCase();
 		string = string.replaceAll("[^a-zа-я0-9+#]+", " ");
