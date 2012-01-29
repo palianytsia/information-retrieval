@@ -31,7 +31,7 @@ public class ZonedIndex extends Index
 			zonesWeights.put(name, (1.0 / ZoneName.values().length));
 		}
 	}
-	
+
 	public ZonedIndex(Collection<ZonedDocument> documents, String pathToExamples)
 	{
 		this(documents);
@@ -226,15 +226,16 @@ public class ZonedIndex extends Index
 				}
 				else
 				{
-					System.err.println("Document [" + guid.getText()
-							+ "] is not present in the index cache");
+					System.err.printf("Document [%s] is not present in the index cache.%n", guid
+							.getText().trim());
 				}
 			}
 		}
 		return examples;
 	}
 
-	public static Collection<ZonedDocument> convertDocuments(Collection<Document> documents) {
+	public static Collection<ZonedDocument> convertDocuments(Collection<Document> documents)
+	{
 		Collection<ZonedDocument> zonedDocuments = new HashSet<ZonedDocument>();
 		for (Document document : documents)
 		{
