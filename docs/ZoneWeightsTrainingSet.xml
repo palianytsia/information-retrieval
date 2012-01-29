@@ -1,62 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExampleSet indexSource="http://bookmart.pragmatictips.com/?cmd=rss">
+<ExampleSet indexSource="http://pragmatictips.com/rss.php">
 	<Example>
-		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=344
-		</Guid>
-		<Relevance>true</Relevance>
-	</Example>
-	<Example>
-		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=34
-		</Guid>
-		<Relevance>true</Relevance>
-	</Example>
-	<Example>
-		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=342
-		</Guid>
-		<Relevance>true</Relevance>
-	</Example>
-	<Example>
-		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=4
+		<Term>refactor</Term>
+		<Guid>http://pragmatictips.com/?tip_id=100
 		</Guid>
 		<Relevance>false</Relevance>
 	</Example>
 	<Example>
-		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=28
+		<Term>refactor</Term>
+		<Guid>http://pragmatictips.com/?tip_id=77
+		</Guid>
+		<Relevance>true</Relevance>
+	</Example>
+	<Example>
+		<Term>refactor</Term>
+		<Guid>http://pragmatictips.com/?tip_id=106
+		</Guid>
+		<Relevance>true</Relevance>
+	</Example>
+	<Example>
+		<Term>refactor</Term>
+		<Guid>http://pragmatictips.com/?tip_id=94
+		</Guid>
+		<Relevance>true</Relevance>
+	</Example>
+	<Example>
+		<Term>refactor</Term>
+		<Guid>http://pragmatictips.com/?tip_id=143
 		</Guid>
 		<Relevance>false</Relevance>
 	</Example>
 	<Example>
-		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=49
+		<Term>refactor</Term>
+		<Guid>http://pragmatictips.com/?tip_id=149
 		</Guid>
 		<Relevance>true</Relevance>
 	</Example>
 	<Example>
-		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=42
+		<Term>refactor</Term>
+		<Guid>http://pragmatictips.com/?tip_id=47
 		</Guid>
 		<Relevance>true</Relevance>
 	</Example>
 	<Example>
-		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=43
-		</Guid>
-		<Relevance>true</Relevance>
-	</Example>
-	<Example>
-		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=45
+		<Term>refactor</Term>
+		<Guid>http://pragmatictips.com/?tip_id=90
 		</Guid>
 		<Relevance>false</Relevance>
 	</Example>
 	<Example>
-		<Term>java</Term>
-		<Guid>http://bookmart.pragmatictips.com/index.php?cmd=fullbookinformation&amp;book=46
+		<Term>refactor</Term>
+		<Guid>http://pragmatictips.com/?tip_id=148
+		</Guid>
+		<Relevance>true</Relevance>
+	</Example>
+	<Example>
+		<Term>refactor</Term>
+		<Guid>http://pragmatictips.com/?tip_id=146
 		</Guid>
 		<Relevance>false</Relevance>
 	</Example>
