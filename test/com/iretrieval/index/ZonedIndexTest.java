@@ -4,10 +4,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.iretrieval.TrainingExample;
 import com.iretrieval.ZoneName;
 
 public class ZonedIndexTest extends IndexTest
@@ -16,7 +20,20 @@ public class ZonedIndexTest extends IndexTest
 	public void setUp()
 	{
 		super.setUp();
-		zonedIndex = new ZonedIndex(ZonedIndex.convertDocuments(IndexTest.docs), null); // TODO: add training examples here
+		Set<TrainingExample> trainingExamples = new HashSet<TrainingExample>();
+		trainingExamples.add(new TrainingExample("Document a", "policy", true));
+		trainingExamples.add(new TrainingExample("Document b", "policy", false));
+		trainingExamples.add(new TrainingExample("Document c", "policy", false));
+		trainingExamples.add(new TrainingExample("Document a", "car", true));
+		trainingExamples.add(new TrainingExample("Document b", "car", true));
+		trainingExamples.add(new TrainingExample("Document c", "car", true));
+		trainingExamples.add(new TrainingExample("Document a", "auto", true));
+		trainingExamples.add(new TrainingExample("Document b", "auto", true));
+		trainingExamples.add(new TrainingExample("Document c", "auto", true));
+		trainingExamples.add(new TrainingExample("Document a", "tractor", false));
+		trainingExamples.add(new TrainingExample("Document b", "tractor", false));
+		trainingExamples.add(new TrainingExample("Document c", "tractor", false));
+		zonedIndex = new ZonedIndex(ZonedIndex.convertDocuments(IndexTest.docs), trainingExamples);
 		assertNotNull(zonedIndex);
 	}
 	

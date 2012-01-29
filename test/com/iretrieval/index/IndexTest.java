@@ -38,7 +38,7 @@ public class IndexTest
 	{
 		Set<String> dictionary = index.getDictionary();
 		assertNotNull(dictionary);
-		assertTrue(dictionary.size() == 5);
+		assertTrue(dictionary.size() == 7);
 		assertTrue(dictionary.contains("car"));
 	}
 
@@ -62,10 +62,11 @@ public class IndexTest
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
-		a.setTitle("<h1>Auto insurance</h1>");
+		a.setTitle("<h1>Auto insurance policy</h1>");
 		a.setBody("<p><strong>Car</strong> insurance.</p>");
 		b.setTitle("best car");
 		c.setTitle("fast auto");
+		c.setBody("Tractor");
 		docs.add(a);
 		docs.add(b);
 		docs.add(c);
