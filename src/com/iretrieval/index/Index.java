@@ -15,7 +15,6 @@ import java.util.TreeSet;
 
 import com.iretrieval.Document;
 import com.iretrieval.Query;
-import com.iretrieval.Utils;
 
 public class Index
 {
@@ -37,7 +36,7 @@ public class Index
 			{
 				if (documentsCache.put(document.getGuid(), document) == null)
 				{
-					StringTokenizer st = new StringTokenizer(Utils.normalize(document.getRawText()));
+					StringTokenizer st = new StringTokenizer(document.getText());
 					while (st.hasMoreTokens())
 					{
 						String term = st.nextToken();

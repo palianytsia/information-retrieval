@@ -10,10 +10,18 @@ import java.util.StringTokenizer;
 
 public class Query implements TermStatistics
 {
+	/**
+	 * Constructs new query for retrieving documents
+	 * 
+	 * @param queryString
+	 * String representation of the information need (query text). Before being
+	 * stored is processed by {@link com.iretrieval.Utils#normalize(String)
+	 * normalization function}.
+	 */
 	public Query(String queryString)
 	{
-		this.queryString = queryString;
-		StringTokenizer st = new StringTokenizer(Utils.normalize(queryString));
+		this.queryString = Utils.normalize(queryString);
+		StringTokenizer st = new StringTokenizer(this.queryString);
 		while (st.hasMoreTokens())
 		{
 			String term = st.nextToken();
@@ -31,7 +39,7 @@ public class Query implements TermStatistics
 		Integer termFrequency = termFrequencies.get(term);
 		if (termFrequency == null)
 		{
-			termFrequency = Utils.countMatches("\\b" + term + "\\b", queryString);
+			termFrequency = Utils.countTerms(term, queryString);
 			termFrequencies.put(term, termFrequency);
 		}
 		return termFrequency.intValue();

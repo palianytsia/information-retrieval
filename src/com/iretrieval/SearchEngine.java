@@ -158,7 +158,7 @@ public class SearchEngine
 				if (description != null && description.getValue() != null
 						&& !description.getValue().isEmpty())
 				{
-					document.setDescription(description.getValue());
+					document.setBody(description.getValue());
 				}
 
 				String link = item.getLink();

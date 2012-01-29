@@ -27,7 +27,8 @@ public class Document implements TermStatistics
 	 * Adds a category to document's categories' set.
 	 * 
 	 * @param category
-	 * Name of the category.
+	 * Name of the category. Before being assigned is processed by
+	 * {@link com.iretrieval.Utils#normalize(String) normalization function}.
 	 * 
 	 * @return TRUE if categories set did not already contain the specified
 	 * element.
@@ -38,7 +39,7 @@ public class Document implements TermStatistics
 		{
 			categories = new HashSet<String>();
 		}
-		return categories.add(category);
+		return categories.add(Utils.normalize(category));
 	}
 
 	/**
@@ -52,7 +53,8 @@ public class Document implements TermStatistics
 	 * single group.
 	 * 
 	 * @param fieldValue
-	 * Extra field value.
+	 * Extra field value. Before being assigned is processed by
+	 * {@link com.iretrieval.Utils#normalize(String) normalization function}.
 	 * 
 	 * @return The previous fieldValue associated with fieldName within the
 	 * current group, or null if there was no mapping for fieldName.
@@ -68,7 +70,7 @@ public class Document implements TermStatistics
 			extraFields.put(groupName, new HashMap<String, String>());
 		}
 		Map<String, String> group = extraFields.get(groupName);
-		return group.put(fieldName, fieldValue);
+		return group.put(fieldName, Utils.normalize(fieldValue));
 	}
 
 	@Override
@@ -97,14 +99,13 @@ public class Document implements TermStatistics
 	}
 
 	/**
-	 * Gets main textual content field of the document. In RSS format it is
-	 * called description field, so the name is from there.
+	 * Gets main textual content field of the document.
 	 * 
 	 * @return Document's main content field.
 	 */
-	public String getDescription()
+	public String getBody()
 	{
-		return description;
+		return body;
 	}
 
 	/**
@@ -165,9 +166,9 @@ public class Document implements TermStatistics
 	 * Goes through all the fields within document and gathers content from them
 	 * to a string. Different fields' content is delimited with space character.
 	 * 
-	 * @return All the text contained by the document.
+	 * @return All the text data contained by the document.
 	 */
-	public String getRawText()
+	public String getText()
 	{
 		StringBuilder builder = new StringBuilder();
 
@@ -177,9 +178,9 @@ public class Document implements TermStatistics
 			builder.append(" ");
 		}
 
-		if (description != null)
+		if (body != null)
 		{
-			builder.append(description);
+			builder.append(body);
 			builder.append(" ");
 		}
 
@@ -234,15 +235,15 @@ public class Document implements TermStatistics
 	public int getTermFrequency(String term)
 	{
 		// if text has been changed we cannot rely on cached frequencies
-		if (getRawText().hashCode() != termFrequenciesVersion)
+		if (getText().hashCode() != termFrequenciesVersion)
 		{
 			termFrequencies.clear();
-			termFrequenciesVersion = getRawText().hashCode();
+			termFrequenciesVersion = getText().hashCode();
 		}
 		Integer termFrequency = termFrequencies.get(term);
 		if (termFrequency == null)
 		{
-			termFrequency = Utils.countMatches("\\b" + term + "\\b", getRawText());
+			termFrequency = Utils.countTerms(term, getText());
 			termFrequencies.put(term, termFrequency);
 		}
 		return termFrequency.intValue();
@@ -285,16 +286,16 @@ public class Document implements TermStatistics
 	}
 
 	/**
-	 * Sets document's description field, which is the main textual content
-	 * field of the document. In RSS format it is called description field, so
-	 * the name is from there.
+	 * Sets body field, which is the main textual content field of the document.
 	 * 
-	 * @param description
-	 * A new value for main textual content field of the document.
+	 * @param content
+	 * A new value for main textual content field of the document. Before being
+	 * assigned is processed by {@link com.iretrieval.Utils#normalize(String)
+	 * normalization function}.
 	 */
-	public void setDescription(String content)
+	public void setBody(String content)
 	{
-		this.description = content;
+		this.body = Utils.normalize(content);
 	}
 
 	/**
@@ -362,11 +363,13 @@ public class Document implements TermStatistics
 	 * Sets document's title.
 	 * 
 	 * @param title
-	 * A new title for the document to set.
+	 * A new title for the document to set. Before being assigned is processed
+	 * by {@link com.iretrieval.Utils#normalize(String) normalization function}.
 	 */
 	public void setTitle(String title)
 	{
-		this.title = title;
+		this.title = Utils.normalize(title);
+		;
 	}
 
 	@Override
@@ -411,7 +414,7 @@ public class Document implements TermStatistics
 
 	private Set<String> categories = new HashSet<String>();
 
-	private String description;
+	private String body;
 
 	private Map<String, Map<String, String>> extraFields = new HashMap<String, Map<String, String>>();
 	private String guid;

@@ -38,7 +38,7 @@ public class Zone
 		Integer termFrequency = termFrequencies.get(term);
 		if (termFrequency == null)
 		{
-			termFrequency = Utils.countMatches("\\b" + term + "\\b", getContent());
+			termFrequency = Utils.countTerms(term, getContent());
 			if (termFrequency > 0)
 			{
 				termFrequencies.put(term, termFrequency);

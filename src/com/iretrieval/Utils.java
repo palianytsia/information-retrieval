@@ -5,13 +5,25 @@ import java.util.regex.Pattern;
 
 import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
+import org.jsoup.Jsoup;
 
 public class Utils
 {
-	public static int countMatches(String regex, String input)
+	/**
+	 * Counts how many times term occurs in haystack string
+	 * 
+	 * @param needle
+	 * Term to count occurrences for.
+	 * 
+	 * @param haystack
+	 * The input string.
+	 * 
+	 * @return Term frequency of the term in the haystack.
+	 */
+	public static int countTerms(String term, String haystack)
 	{
-		Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-		Matcher m = p.matcher(normalize(input));
+		Pattern p = Pattern.compile("\\b" + term + "\\b", Pattern.CASE_INSENSITIVE);
+		Matcher m = p.matcher(haystack);
 		int count = 0;
 		while (m.find())
 		{
@@ -45,8 +57,8 @@ public class Utils
 	}
 
 	/**
-	 * Prepares string for indexing: removes punctuation, sets case to lower,
-	 * etc.
+	 * Prepares string for indexing: strips tags, removes punctuation, removes
+	 * trailing and leading whitespace, sets case to lower, etc.
 	 * 
 	 * @param string
 	 * String to be processed
@@ -55,9 +67,10 @@ public class Utils
 	 */
 	public static String normalize(String string)
 	{
+		string = Jsoup.parse(string).text();
 		string = string.toLowerCase();
 		string = string.replaceAll("[^a-zа-я0-9+#]+", " ");
 		string = string.replaceAll("(\\s|^)((\\S{1}|\\d{2})(\\s|\\n|\\r|\\t|$){1})+", " ");
-		return string;
+		return string.trim();
 	}
 }

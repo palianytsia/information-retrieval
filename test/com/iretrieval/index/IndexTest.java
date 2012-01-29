@@ -62,8 +62,8 @@ public class IndexTest
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
-		a.setTitle("auto insurance");
-		a.setDescription("car insurance");
+		a.setTitle("<h1>Auto insurance</h1>");
+		a.setBody("<p><strong>Car</strong> insurance.</p>");
 		b.setTitle("best car");
 		c.setTitle("fast auto");
 		docs.add(a);

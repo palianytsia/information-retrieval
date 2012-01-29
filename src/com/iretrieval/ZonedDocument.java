@@ -14,7 +14,7 @@ public class ZonedDocument extends Document
 	{
 		super(document.getGuid());
 		setCategories(document.getCategories());
-		setDescription(document.getDescription());
+		setBody(document.getBody());
 		setExtraFields(document.getExtraFields());
 		setLink(document.getLink());
 		setPubDate(document.getPubDate());
@@ -90,10 +90,10 @@ public class ZonedDocument extends Document
 	}
 
 	@Override
-	public void setDescription(String content)
+	public void setBody(String content)
 	{
-		super.setDescription(content);
-		addZone(ZoneName.Description, getDescription());
+		super.setBody(content);
+		addZone(ZoneName.Description, getBody());
 	}
 
 	@Override
@@ -124,7 +124,7 @@ public class ZonedDocument extends Document
 		{
 			content = "";
 		}
-		Zone newZone = new Zone(name, content.toLowerCase());
+		Zone newZone = new Zone(name, content);
 		return zones.put(name, newZone);
 	}
 
