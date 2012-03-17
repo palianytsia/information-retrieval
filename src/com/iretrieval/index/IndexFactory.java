@@ -120,8 +120,10 @@ public final class IndexFactory
 		}
 		catch (Exception e)
 		{
-			logger.throwing(IndexFactory.class.getName(), "loadDocuments", e);
-			throw new IOException(e);
+			logger.log(Level.WARNING, "Exception occured while trying to add documents: {0}.", e);
+			IOException ioe = new IOException(e);
+			logger.throwing(IndexFactory.class.getName(), "addDocuments", ioe);
+			throw ioe;
 		}
 	}
 
@@ -161,10 +163,13 @@ public final class IndexFactory
 					}
 				}
 			}
-			catch (DocumentException e)
+			catch (DocumentException de)
 			{
-				logger.throwing(IndexFactory.class.getName(), "setExamples", e);
-				throw new IOException(e);
+				logger.log(Level.WARNING, "Exception occured while trying to add examples: {0}.",
+						de);
+				IOException ioe = new IOException(de);
+				logger.throwing(IndexFactory.class.getName(), "addExamples", ioe);
+				throw ioe;
 			}
 		}
 	}
@@ -174,11 +179,14 @@ public final class IndexFactory
 	 * (available documents and examples).
 	 * 
 	 * @param type
-	 * Index type.
+	 * Index type. Supported types are ZONED, INVERTED, VECTOR_SPACE and BASIC.
 	 * 
 	 * @return Newly created index.
+	 * 
+	 * @throws UnsupportedOperationException
+	 * In case the given type is not supported by this method.
 	 */
-	public Index getIndex(IndexType type)
+	public Index getIndex(IndexType type) throws UnsupportedOperationException
 	{
 		assert documents != null;
 		Index index = null;
@@ -194,9 +202,14 @@ public final class IndexFactory
 		case VECTOR_SPACE:
 			index = new VectorSpaceIndex(documents);
 			break;
-		default:
+		case BASIC:
 			index = new Index(documents);
 			break;
+		default:
+			UnsupportedOperationException e = new UnsupportedOperationException("Index of type "
+					+ type + " cannot be obtained.");
+			logger.throwing(IndexFactory.class.getName(), "getIndex", e);
+			throw e;
 		}
 		assert index != null;
 		logger.log(Level.INFO, "{0} index has been successfully built.", type.getReadableName());
