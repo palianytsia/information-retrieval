@@ -12,6 +12,7 @@ import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import com.iretrieval.Document;
 import com.iretrieval.Query;
@@ -136,5 +137,6 @@ public class Index
 
 	protected Map<String, Document> documentsCache = new HashMap<String, Document>();
 	protected Map<String, SortedSet<String>> postingsList = new TreeMap<String, SortedSet<String>>();
+	protected static final Logger logger = Logger.getLogger("com.iretrieval.index");
 
 }

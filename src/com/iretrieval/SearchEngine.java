@@ -1,209 +1,100 @@
 package com.iretrieval;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
-
-import org.jdom.Element;
 
 import com.iretrieval.index.Index;
+import com.iretrieval.index.IndexFactory;
 import com.iretrieval.index.IndexType;
-import com.iretrieval.index.InvertedIndex;
-import com.iretrieval.index.VectorSpaceIndex;
-import com.iretrieval.index.ZonedIndex;
-import com.sun.syndication.feed.synd.SyndCategory;
-import com.sun.syndication.feed.synd.SyndContent;
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
 
 public class SearchEngine
 {
 	public static void main(String[] args)
 	{
-		String source = null;
-		String examplesFileLocation = null;
-		URL feedURL = null;
-		IndexType intexType = IndexType.BasicIndex;
-		Index index = null;
+		Map<String, String> argsMap = parseArgs(args);
 
-		for (int i = 0; i < args.length - 1; i++)
-		{
-			if (args[i].equals("-s"))
-			{
-				source = args[i + 1];
-			}
-			else if (args[i].equals("-t"))
-			{
-				intexType = IndexType.valueOf(args[i + 1]);
-			}
-			else if (args[i].equals("-e"))
-			{
-				examplesFileLocation = args[i + 1];
-			}
-		}
-		if (source == null)
-		{
-			System.err.println("You should launch the program with -s [feedURL], "
-					+ "where feedURL is a link to RSS feed describing the "
-					+ "documents to be indexed. Program will terminate now.");
-			System.exit(-1);
-		}
-
+		// Define the index type from user input
+		// Set it to the most primitive index type if user hasn't specified
+		// index type or has specified it incorrectly.
+		IndexType indexType = null;
 		try
 		{
-			feedURL = new URL(source);
+			indexType = IndexType.valueOf(argsMap.get("-t"));
 		}
-		catch (MalformedURLException e)
+		catch (IllegalArgumentException iae)
 		{
-			System.err.println("MalformedURL was given as source for the index: " + source
-					+ ". Program will terminate now.");
-			System.exit(-1);
+			System.err.println(argsMap.get("-t") + " is not a valid index type. Valid types are: "
+					+ Arrays.toString(IndexType.values()) + ". "
+					+ IndexType.BASIC.getReadableName() + " index will be build instead.");
+			indexType = IndexType.BASIC;
+		}
+		catch (NullPointerException ne)
+		{
+			indexType = IndexType.BASIC;
 		}
 
-		if (feedURL != null)
+		// Create index factory based on user input
+		// and try to obtain the index of the desired type.
+		IndexFactory indexFactory = new IndexFactory();
+		try
 		{
-			Collection<Document> documents = loadDocuments(feedURL);
-			if (intexType.equals(IndexType.ZonedIndex))
+			indexFactory.setDocuments(argsMap.get("-s"));
+		}
+		catch (IOException e)
+		{
+			System.err.println("Failed to build index from the specified source."
+					+ " Program will terminate now.");
+			System.exit(-1);
+		}
+		try
+		{
+			indexFactory.setExamples(argsMap.get("-e"));
+		}
+		catch (IOException e)
+		{
+			System.err.println("The file you have specified as one containnig "
+					+ "training examples is either invalid or not found. "
+					+ "Examples won't be used for weights adjustment.");
+		}
+		Index index = indexFactory.getIndex(indexType);
+		System.out.println("Index has been built. Now you are able to run "
+				+ "queries and retrieve documents. Type exit to quit.");
+
+		// If we got to this point we are ready to handle queries :)
+		Scanner in = new Scanner(System.in);
+		String command = "";
+		while (!command.equals("exit"))
+		{
+			System.out.print("Query> ");
+			if (in.hasNextLine())
 			{
-				index = new ZonedIndex(ZonedIndex.convertDocuments(documents), TrainingExample.loadExamples(examplesFileLocation));
-				System.out.print("Zoned ");
-			}
-			else if (intexType.equals(IndexType.InvertedIndex))
-			{
-				index = new InvertedIndex(documents);
-				System.out.print("Inverted ");
-			}
-			else if (intexType.equals(IndexType.VectorSpaceIndex))
-			{
-				index = new VectorSpaceIndex(documents);
-				System.out.print("Vector Space ");
-			}
-			else
-			{
-				index = new Index(documents);
-				System.out.print("Basic ");
-			}
-			System.out.println("Index has been build. Now you are able to run "
-					+ "queries and retrieve documents. Type exit to quit.");
-			Scanner in = new Scanner(System.in);
-			String command = "";
-			while (!command.equals("exit"))
-			{
-				System.out.print("Query> ");
-				if (in.hasNextLine())
+				command = in.nextLine();
+				if (!command.equals("exit"))
 				{
-					command = in.nextLine();
-					if (!command.equals("exit"))
+					int i = 0;
+					for (Document document : index.retrieveDocuments(new Query(command)))
 					{
-						int i = 0;
-						for (Document document : index.retrieveDocuments(new Query(command)))
-						{
-							System.out.println(++i + ") " + document.toString());
-						}
+						System.out.println(++i + ") " + document.toString());
 					}
 				}
 			}
 		}
 	}
 
-	/**
-	 * Creates a set of documents from RSS feed
-	 * 
-	 * @param feedUrl
-	 * URL of RSS feed containing items to be source for documents.
-	 * 
-	 * @return Set of documents, if provided path contains files to create
-	 * documents from and creation was successful. Returns empty set otherwise.
-	 */
-	@SuppressWarnings("unchecked")
-	private static Collection<Document> loadDocuments(URL feedUrl)
+	private static Map<String, String> parseArgs(String[] args)
 	{
-		Set<Document> docs = new HashSet<Document>();
-		List<SyndEntry> items = new ArrayList<SyndEntry>();
-		try
+		Map<String, String> argsMap = new HashMap<String, String>();
+		for (int i = 0; i < args.length - 1; i++)
 		{
-			SyndFeedInput input = new SyndFeedInput();
-			SyndFeed sf = input.build(new XmlReader(feedUrl));
-			items.addAll(sf.getEntries());
-		}
-		catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return docs;
-		}
-
-		for (SyndEntry item : items)
-		{
-			String guid = item.getUri();
-			if (guid != null && !guid.isEmpty())
+			if (args[i].startsWith("-") && !args[i + 1].startsWith("-"))
 			{
-				Document document = new Document(guid);
-
-				String title = item.getTitle();
-				if (title != null && !title.isEmpty())
-				{
-					document.setTitle(title);
-				}
-
-				SyndContent description = item.getDescription();
-				if (description != null && description.getValue() != null
-						&& !description.getValue().isEmpty())
-				{
-					document.setBody(description.getValue());
-				}
-
-				String link = item.getLink();
-				if (link != null && !link.isEmpty())
-				{
-					document.setLink(link);
-				}
-
-				Date pubDate = item.getPublishedDate();
-				if (pubDate != null)
-				{
-					document.setPubDate(pubDate);
-				}
-
-				Collection<SyndCategory> categories = item.getCategories();
-				if (categories != null)
-				{
-					for (SyndCategory category : categories)
-					{
-						if (category != null && category.getName() != null
-								&& !category.getName().isEmpty())
-						{
-							document.addCategory(category.getName());
-						}
-					}
-				}
-
-				List<Element> extraFields = (List<Element>) item.getForeignMarkup();
-				for (Element extraField : extraFields)
-				{
-					if (extraField != null && extraField.getNamespaceURI() != null
-							&& extraField.getName() != null && extraField.getValue() != null
-							&& !extraField.getNamespaceURI().isEmpty()
-							&& !extraField.getName().isEmpty() && !extraField.getValue().isEmpty())
-					{
-						document.addExtraField(extraField.getNamespaceURI(), extraField.getName(),
-								extraField.getValue());
-					}
-				}
-
-				docs.add(document);
+				argsMap.put(args[i], args[i + 1]);
 			}
 		}
-
-		return docs;
+		return argsMap;
 	}
 
 }

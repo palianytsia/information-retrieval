@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.logging.Level;
 
 import com.iretrieval.Document;
 import com.iretrieval.Query;
@@ -18,22 +19,29 @@ public class ZonedIndex extends Index
 {
 	public ZonedIndex(Collection<ZonedDocument> documents)
 	{
+		this(documents, null);
+	}
+
+	public ZonedIndex(Collection<ZonedDocument> documents, Collection<TrainingExample> examples)
+	{
 		super(documents);
 		zonesWeights = new HashMap<ZoneName, Double>();
 		for (ZoneName name : ZoneName.values())
 		{
 			zonesWeights.put(name, (1.0 / ZoneName.values().length));
 		}
-	}
-
-	public ZonedIndex(Collection<ZonedDocument> documents, Collection<TrainingExample> examples)
-	{
-		this(documents);
-		if (!adjustWeights(examples)) {
-			System.out.printf("Zones' weights were adjusted. New weights: %s.%n", zonesWeights);
-		}
-		else {
-			System.err.printf("Examples weren't good enough to adjust zones' weights. Weights remain the same: %s.%n", zonesWeights);
+		if (examples != null && examples.size() > 0)
+		{
+			if (!adjustWeights(examples))
+			{
+				logger.log(Level.INFO, "Zones' weights were adjusted. New weights: {0}.",
+						zonesWeights);
+			}
+			else
+			{
+				logger.log(Level.WARNING, "Examples weren't good enough to adjust zones' weights. "
+						+ "Weights remain the same: {0}.", zonesWeights);
+			}
 		}
 	}
 
@@ -195,7 +203,8 @@ public class ZonedIndex extends Index
 				}
 			}
 		}
-		if (oldZonesWeights.equals(zonesWeights)) {
+		if (oldZonesWeights.equals(zonesWeights))
+		{
 			return false;
 		}
 		return true;
